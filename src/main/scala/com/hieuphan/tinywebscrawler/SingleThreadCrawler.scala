@@ -55,10 +55,29 @@ object SingleThreadCrawler {
       .filter(l => !l.contains("mailto"))
       .filter(l => new URL(l).getHost == baseDomain)
   }
-}
-object Main extends App  {
-  val map = SingleThreadCrawler.crawl("https://monzo.com")
 
-  println(map.edges.asSortedString("\n").replace("~>", " ~> ") )
+
+  def main(args: Array[String]) = {
+    case class Config(startUrl: String = "www.bbc.co.uk", maxDepth: Int = 5)
+
+    val parser = new scopt.OptionParser[Config]("single-thread-crawler") {
+      head("this is supposed to be the usage text", "this is supposed to be the version")
+
+      opt[String]('u', "url").required().valueName("<startUrl>")
+      opt[Int]('d', "d").required().valueName("<maxDepth>")withFallback(() => 5)
+    }
+
+    parser.parse(args, Config()) match {
+      case Some(config) =>
+        // do stuff
+        crawl(config.startUrl)
+      case None =>
+        // arguments are bad, error message will have been displayed
+        println("Nah!")
+    }
+  }
+
 }
+
+
 
