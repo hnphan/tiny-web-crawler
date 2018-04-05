@@ -15,6 +15,14 @@ import scalax.collection.GraphEdge._
 
 object SingleThreadCrawler extends LazyLogging {
 
+  def time[R](block: => R): R = {
+    val t0 = System.nanoTime()
+    val result = block
+    val t1 = System.nanoTime()
+    logger.info("Done. Elapsed time: " + (t1 - t0)/1000000000.0 + "s")
+    result
+  }
+
   def crawl(startUrl: String, maxDepth: Int): Graph[String, DiEdge] = {
     logger.info(s"Will start crawling from ${startUrl} with maximum depth of ${maxDepth}")
 
@@ -84,7 +92,7 @@ object SingleThreadCrawler extends LazyLogging {
     parser.parse(args, Config()) match {
       case Some(config) =>
         // do stuff
-        val map = crawl(config.startUrl, config.maxDepth)
+        val map = time(crawl(config.startUrl, config.maxDepth))
         logger.info(s"Site map: \n${map.edges.asSortedString("\n").replace("~>", " ~> ")}")
       case None =>
         // arguments are bad, error message will have been displayed
