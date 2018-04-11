@@ -5,7 +5,7 @@ import java.net.URL
 import com.hieuphan.tinywebscrawler.crawler.ConcurrentCrawler
 import com.hieuphan.tinywebscrawler.scraper.RetryableInternalLinksScraper
 import com.hieuphan.tinywebscrawler.util.ExecutionTimeUtil
-import com.hieuphan.tinywebscrawler.webclient.{JsoupHttpConnectWrapper, RetryableJsoupWebClient}
+import com.hieuphan.tinywebscrawler.webclient.RetryableJsoupWebClient
 import org.apache.commons.validator.routines.UrlValidator
 
 case class Config(startUrl: String = "https://www.google.co.uk", maxDepth: Int = Int.MaxValue, maxConcurrency: Int = 8)
