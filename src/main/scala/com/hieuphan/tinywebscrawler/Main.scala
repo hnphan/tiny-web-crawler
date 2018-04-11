@@ -44,6 +44,8 @@ object Main extends App with ExecutionTimeUtil {
         else failure("Value <maxConcurrency> must be greater than zero.")
       })
       .action((maxConcurrency, config) => config.copy(maxConcurrency = maxConcurrency))
+
+    help("help").text("prints this usage text")
   }
 
   parser.parse(args, Config()) match {
