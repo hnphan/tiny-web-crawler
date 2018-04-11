@@ -69,11 +69,11 @@ Crawl from https://www.w3.org with default options
 ```
 sbt "run -u https://www.w3.org"
 ```
-Crawl from https://www.bbc.co.uk using 16 threads
+Crawl from https://www.w3.org using 16 threads
 ```
 sbt "run -u https://www.w3.org -c 16"
 ```
-Crawl from https://www.bbc.co.uk using 16 threads, stopping after 2 levels
+Crawl from https://www.w3.org using 16 threads, stopping after 2 levels
 ```
 sbt "run -u https://www.w3.org -c 16 -d 3"
 ```
