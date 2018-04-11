@@ -26,11 +26,9 @@ git clone git@github.com:hnphan/tiny-web-crawler.git
 brew install sbt
 ```
 
-### Installing
+### Running instruction
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
+Once you have sbt install, you can play around with the program by following the examples below:
 
 ```
 Give the example
