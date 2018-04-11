@@ -29,7 +29,7 @@ object Main extends App with ExecutionTimeUtil {
 
     opt[Int]('d', "depth")
       .optional()
-      .valueName("<maxDepth>")
+      .valueName("<maxDepth> (default to Int.MaxValue)")
       .validate(depth => {
         if (depth > 0) success
         else failure("Value <maxDepth> must be greater than zero.")
@@ -38,7 +38,7 @@ object Main extends App with ExecutionTimeUtil {
 
     opt[Int]('c', "concurrency")
       .optional()
-      .valueName("<maxConcurrency>")
+      .valueName("<maxConcurrency> (default to 8)")
       .validate(maxConcurrency => {
         if (maxConcurrency > 0) success
         else failure("Value <maxConcurrency> must be greater than zero.")

@@ -23,6 +23,7 @@ case class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) ext
           .map(_.absUrl("href"))
           .filter(l => l != null && !l.isEmpty)
           .filter(l => !l.contains("mailto"))
+          .map(link => link.split("#")(0)) // because of anchors like http://example.com/#top
           .map(link => new URL(link))
           .filter(l => l.getHost == url.getHost)
           .toSet

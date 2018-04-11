@@ -6,10 +6,24 @@ it would crawl all pages within example.com, but not follow external links.
 * Note that blog.example.com
 is considered "external" to example.com in this implementation.
 * Given a URL, it can print a simple site map, showing the links between pages.
-* The crawling is done using graph breadth-first search. Links at the same "depth" in the graph can be crawled in parallel
-to speed up the program.
-* Web content retrieval using a wrapper around Jsoup HTTP library, which supports retrying in case of unstable connection,
+
+### Technical overview
+* The code is structured into a few building blocks
+  * package webclient contains classes which help retrieve web content (such as html pages)
+  over HTTP. The code supports retrying & exponential backout for robustness.
+  * package scraper contains classes which help scrape links from html content
+  * package crawler contain classes which orchestrate the crawling work in parallel
+* The crawling is done using graph breadth-first search. 
+* Links at the same "depth" in the graph can be crawled in parallel
+to speed up the program. To simplify the concurrency model, we only crawl links at one depth at a time.
+* The concurrency is simply done by using an executor with an underlying fixed thread pool. Scala futures are automatically
+executed in parallel using this executor.
+* Web content retrieval is done using a wrapper around Jsoup HTTP library, which supports retrying in case of unstable connection,
 and exponential back-off to avoid overloading the target website.
+
+### Known limitations
+* There are some subtle cases such as `http://www.w3.org` and `http://www.w3.org/` are considered two different URL's by this crawler
+* This crawler is rather impolite; it does not respect `robots.txt`
 
 ### Getting started
 Get a copy of the code from:
@@ -30,68 +44,100 @@ brew install sbt
 
 Once you have sbt install, you can play around with the program by following the examples below:
 
+First navigate into the top directory:
 ```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+cd tiny-web-crawler
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+Print usage:
+```
+sbt "run --help"
+Welcome to tiny web crawler 0.1
+Usage: tiny-thread-crawler [options]
+
+  -u, --url <startUrl>     
+  -d, --depth <maxDepth> (default to Int.MaxValue)
+                           
+  -c, --concurrency <maxConcurrency> (default to 8)
+                           
+  --help                   prints this usage text
+
+
+```
+
+Crawl from https://www.w3.org with default options
+```
+sbt "run -u https://www.w3.org"
+```
+Crawl from https://www.bbc.co.uk using 16 threads
+```
+sbt "run -u https://www.w3.org -c 16"
+```
+Crawl from https://www.bbc.co.uk using 16 threads, stopping after 2 levels
+```
+sbt "run -u https://www.w3.org -c 16 -d 3"
+```
+Sample stdout output:
+```
+00:19:20.571 [run-main-0] INFO com.hieuphan.tinywebscrawler.crawler.ConcurrentCrawler - Will start crawling from http://www.w3.org using maxConcurrency 8
+00:19:20.735 [run-main-0] DEBUG com.hieuphan.tinywebscrawler.crawler.ConcurrentCrawler - Crawling at depth 0
+00:19:21.316 [run-main-0] DEBUG com.hieuphan.tinywebscrawler.crawler.ConcurrentCrawler - Crawling at depth 1
+00:19:24.344 [pool-8-thread-7] WARN com.hieuphan.tinywebscrawler.scraper.RetryableInternalLinksScraper - Oops, something bad happened when trying to visit http://www.w3.org/Member/.
+00:19:27.331 [pool-8-thread-1] WARN com.hieuphan.tinywebscrawler.scraper.RetryableInternalLinksScraper - Oops, something bad happened when trying to visit http://www.w3.org/Consortium/activities.
+00:19:27.862 [run-main-0] INFO com.hieuphan.tinywebscrawler.Main$ - Done. Elapsed time: 7.37301609s
+00:19:27.911 [run-main-0] INFO com.hieuphan.tinywebscrawler.Main$ - 
+http://www.w3.org
+		https://www.w3.org/TR/2018/WD-wot-thing-description-20180405/
+		http://www.w3.org/community/
+		https://www.w3.org/International/core/Overview
+		http://www.w3.org/Status.html
+		http://www.w3.org/2009/cheatsheet/
+		http://www.w3.org/Consortium/Legal/ipr-notice
+		http://www.w3.org/blog/news/feed
+		http://www.w3.org/participate/
+		http://www.w3.org/community/groups/
+		https://www.w3.org/blog/2018/04/w3cs-wai-act-project-identified-as-key-innovator/
+		http://www.w3.org/Consortium/Member/Testimonial/
+		https://www.w3.org/blog/talks/venue/funka-days/
+		https://www.w3.org/blog/news/archives/6948
+		https://www.w3.org/blog/2018/03/publishing-w3c-goes-to-ebookcraft/
+		https://www.w3.org/WAI/videos/standards-and-benefits.html
+		https://www.w3.org/blog/news/archives/6945
+		https://www.w3.org/2018/vocabws/
+		https://www.w3.org/2018/Process-20180201/
+		http://www.w3.org/2013/data/
+		https://www.w3.org/webauthn/
+
+[...]
+
+http://www.w3.org/2009/cheatsheet/
+		http://www.w3.org/International/getting-started/language
+		http://www.w3.org/2009/cheatsheet/
+		http://www.w3.org/International/getting-started/characters
+		http://www.w3.org/WAI/intro/wcag.php
+		http://www.w3.org/International/questions/qa-escapes
+		http://www.w3.org/International/techniques/server-setup
+		http://www.w3.org/2007/Talks/0706-atmedia/slides/Slide0350.html
+		http://www.w3.org/International/techniques/authoring-svg
+		http://www.w3.org/WAI/WCAG20/quickref/
+		http://www.w3.org/International/techniques/authoring-html
+		http://www.w3.org/International/articles/inline-bidi-markup/
+		http://www.w3.org/International/techniques/authoring-xml
+		http://www.w3.org/International/questions/qa-what-is-encoding
+		http://www.w3.org/International/
+		http://www.w3.org/International/tutorials/bidi-xhtml/
+		http://www.w3.org/International/techniques/developing-schemas
+		http://www.w3.org/International/techniques/developing-specs
+		http://www.w3.org/2009/cheatsheet/@@@
+		http://www.w3.org/2007/Talks/0706-atmedia/slides/Slide0440.html 
+
+[...]
+```
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+Simply run
 ```
-Give an example
+sbt test
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc

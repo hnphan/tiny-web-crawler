@@ -17,7 +17,7 @@ class ConcurrentCrawler(scraper: Scraper, maxConcurrency: Int = 8) extends Crawl
   implicit val ec = ExecutionContext.fromExecutor(fixedThreadPoolExecutor)
 
   def crawl(startUrl: URL, maxDepth: Int) = {
-    logger.info(s"Will start crawling from ${startUrl} using maxConcurreny ${maxConcurrency}")
+    logger.info(s"Will start crawling from ${startUrl} using maxConcurrency ${maxConcurrency}")
     var currentDepth = 0
 
     var scrapedUrls = scala.collection.mutable.Set[URL]()
