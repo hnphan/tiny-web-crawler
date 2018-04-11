@@ -14,11 +14,11 @@ are considered two different domains in this implementation.
   * package `scraper` contains classes which help scrape links from html content
   * package `crawler` contain classes which orchestrate the crawling work in parallel
 * The crawling is done using graph breadth-first search. 
-* Links at the same "depth" in the graph can be crawled in parallel
-to speed up the program. To simplify the concurrency model, we only crawl links at one depth at a time.
-* The concurrency is simply done by using an executor with an underlying fixed thread pool. Scala futures are automatically
-executed in parallel using this executor.
-* Web content retrieval is done using a wrapper around Jsoup HTTP library, which supports retrying in case of unstable connection,
+* Links at the same "depth" in the graph can be crawled in parallel to speed up the program. 
+To simplify the concurrency model, we only crawl links at one depth at a time.
+* The concurrency is simply done by using an executor with an underlying fixed thread pool. 
+Scala futures are automatically executed in parallel using this executor.
+* Web content retrieval is done using a wrapper around Jsoup HTTP library. This wrapper supports retrying in case of unstable connection,
 and exponential back-off to avoid overloading the target website.
 
 ### Known limitations
