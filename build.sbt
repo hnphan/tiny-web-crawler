@@ -14,3 +14,7 @@ libraryDependencies += "org.specs2" %% "specs2-mock" % "4.0.3" % Test
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 resolvers += "Java.net Maven2 Repository" at "http://download.java.net/maven/2/"
+
+mainClass in assembly := Some("com.hieuphan.tinywebscrawler.Main")
+
+

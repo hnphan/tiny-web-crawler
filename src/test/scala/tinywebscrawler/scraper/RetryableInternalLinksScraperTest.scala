@@ -41,7 +41,7 @@ class RetryableInternalLinksScraperTest extends Specification with Mockito {
     val mockWebClient = mock[RetryableJsoupWebClient]
     val mockOkResponse = mock[Response]
     val mockDocument = mock[Document]
-    val exception = WebClientException("Oops!", new Exception("Oops!"))
+    val exception = WebClientException(new Exception("Oops!"))
     val testURL = new URL("https://www.example.com")
     val htmlContentType = "text/html"
     val htmlString =
