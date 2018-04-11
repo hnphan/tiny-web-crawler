@@ -5,8 +5,6 @@ import java.net.URL
 import com.typesafe.scalalogging.LazyLogging
 import org.jsoup.Connection.Response
 import org.jsoup.HttpStatusException
-
-import scala.concurrent.{ExecutionContext}
 import scala.math.pow
 
 class RetryableJsoupWebClient(jSoupWebClient: JsoupWebClient, maxAttempts: Int = 3) extends LazyLogging {
@@ -36,4 +34,10 @@ class RetryableJsoupWebClient(jSoupWebClient: JsoupWebClient, maxAttempts: Int =
     return RETRYABLE_HTTP_CODES.contains(e.getStatusCode)
   }
 
+}
+
+object RetryableJsoupWebClient {
+  def apply(maxAttempts: Int = 3) = {
+    new RetryableJsoupWebClient(new JsoupWebClient())
+  }
 }

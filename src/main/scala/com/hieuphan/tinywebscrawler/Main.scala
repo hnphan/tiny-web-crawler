@@ -37,15 +37,16 @@ object Main extends App with ExecutionTimeUtil {
 
   parser.parse(args, Config()) match {
     case Some(config) =>
-      val webClient = new RetryableJsoupWebClient(new JsoupWebClient(), maxAttempts = 3)
+      val webClient = RetryableJsoupWebClient(maxAttempts = 3)
+      val crawler = new ConcurrentCrawler(RetryableInternalLinksScraper(webClient), config.maxConcurrency)
+      val startUrl = new URL(config.startUrl)
 
-      val crawler = new ConcurrentCrawler(new RetryableInternalLinksScraper(webClient),
-        maxConcurrency = config.maxConcurrency)
+      val crawledContent = executeAndLogExecutionTimeInSeconds(crawler.crawl(startUrl, config.maxDepth))
 
-      val crawledContent = executeAndLogExecutionTimeInSeconds(crawler.crawl(new URL(config.startUrl), config.maxDepth))
       crawledContent.foreach(
         content => logger.info(s"\nURL: ${content.url.toString}\nLinks:\n${content.links.mkString("\t","\n\t","")} ")
       )
+
       crawler.shutdown()
     case None =>
       logger.error("One or more of the supplied arguments are not valid. Program will exit.")

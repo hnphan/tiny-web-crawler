@@ -8,7 +8,7 @@ import org.jsoup.Jsoup
 
 import scala.collection.JavaConverters._
 
-class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) extends Scraper with LazyLogging {
+case class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) extends Scraper with LazyLogging {
 
   def scrape(url: URL): SimpleWebResource = {
     try {

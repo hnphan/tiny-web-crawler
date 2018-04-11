@@ -8,10 +8,6 @@ import org.jsoup.Connection.Response
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
-
-import scala.io.Source
-import java.io.File
-
 import org.jsoup.nodes.Document
 
 class RetryableInternalLinksScraperTest extends Specification with Mockito {
