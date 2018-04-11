@@ -135,8 +135,33 @@ http://www.w3.org/2009/cheatsheet/
 ```
 
 ## Running the tests
+Unit tests are written with specs2 & mockito, which makes the tests a human-readable specification
+for this project, for example:
+```scala
+class RetryableJsoupWebClientTest extends Specification with Mockito {
 
-Simply run
+  "RetryableJSoupWebClient" should {
+    "issue request and get response successfully" in new MockedEnv {
+      val retryableWebClient = new RetryableJsoupWebClient(mockWebClient, maxAttempts = 3)
+      mockWebClient.getResponse(testUrl) returns okResponse
+
+      val response = retryableWebClient.get(testUrl)
+      response must_== okResponse
+    }
+
+    "retry according to specified maxAttempts if exception is retryable" in new MockedEnv {
+      val retryableWebClient = new RetryableJsoupWebClient(mockWebClient, maxAttempts = 3)
+      mockWebClient.getResponse(testUrl).throws(serviceTemporarilyUnavailableException)
+        .thenThrows(serviceTemporarilyUnavailableException)
+        .thenReturns(okResponse)
+
+      val response = retryableWebClient.get(testUrl)
+
+      response must_== okResponse
+      there were exactly(3)(mockWebClient).getResponse(testUrl)
+    }
+```
+To run the tests, simply run
 ```
 sbt test
 ```
