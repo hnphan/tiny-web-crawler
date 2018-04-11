@@ -3,8 +3,7 @@
 * A simple web crawler written in Scala. 
 * The crawler is limited to one domain - so when you start with https://example.com/, 
 it would crawl all pages within example.com, but not follow external links. 
-* Note that blog.example.com and example.com
-are considered two different domains in this implementation.
+* Note that in this implementation, links on blog.example.com are considered external to links on example.com.
 * Given a URL, it can print a simple site map, showing the links between pages.
 
 ### Technical overview
