@@ -9,14 +9,15 @@ import org.jsoup.HttpStatusException
 import scala.concurrent.{ExecutionContext}
 import scala.math.pow
 
-class RetryableJSoupWebClient(maxAttempts: Int = 3, jSoupWebClient: JSoupWebClient) extends LazyLogging {
+class RetryableJsoupWebClient(jSoupWebClient: JsoupWebClient, maxAttempts: Int = 3) extends LazyLogging {
 
   require(maxAttempts > 1)
 
-  // this list is not exhaustive, needs reviewing
+  // this list might not be exhaustive, needs reviewing
   val RETRYABLE_HTTP_CODES = Seq(503)
 
-  def get(url: URL, attemptsSoFar: Int = 0)(implicit ec: ExecutionContext): Response = {
+  @throws[WebClientException]
+  def get(url: URL, attemptsSoFar: Int = 0): Response = {
     try {
       jSoupWebClient.getResponse(url)
     }

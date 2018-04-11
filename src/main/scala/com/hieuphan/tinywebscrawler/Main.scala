@@ -4,11 +4,12 @@ import java.net.URL
 
 import com.hieuphan.tinywebscrawler.crawler.ConcurrentCrawler
 import com.hieuphan.tinywebscrawler.scraper.RetryableInternalLinksScraper
-import com.hieuphan.tinywebscrawler.util.ExecutionTimeLogger
+import com.hieuphan.tinywebscrawler.util.ExecutionTimeUtil
+import com.hieuphan.tinywebscrawler.webclient.{JsoupWebClient, RetryableJsoupWebClient}
 
-case class Config(startUrl: String = "https://www.google.co.uk", maxDepth: Int = Int.MaxValue, maxConcurrency: Int = 100)
+case class Config(startUrl: String = "https://www.google.co.uk", maxDepth: Int = Int.MaxValue, maxConcurrency: Int = 8)
 
-object Main extends App with ExecutionTimeLogger {
+object Main extends App with ExecutionTimeUtil {
 
   val parser = new scopt.OptionParser[Config]("tiny-thread-crawler") {
     head("Welcome to tiny web crawler!", "0.1")
@@ -36,8 +37,12 @@ object Main extends App with ExecutionTimeLogger {
 
   parser.parse(args, Config()) match {
     case Some(config) =>
-      val crawler = new ConcurrentCrawler(maxConcurrency = config.maxConcurrency, new RetryableInternalLinksScraper(maxAttempts = 1))
-      val crawledContent = executeAndLogExecutionTime(crawler.crawl(new URL(config.startUrl), config.maxDepth))
+      val webClient = new RetryableJsoupWebClient(new JsoupWebClient(), maxAttempts = 3)
+
+      val crawler = new ConcurrentCrawler(new RetryableInternalLinksScraper(webClient),
+        maxConcurrency = config.maxConcurrency)
+
+      val crawledContent = executeAndLogExecutionTimeInSeconds(crawler.crawl(new URL(config.startUrl), config.maxDepth))
       crawledContent.foreach(
         content => logger.info(s"\nURL: ${content.url.toString}\nLinks:\n${content.links.mkString("\t","\n\t","")} ")
       )

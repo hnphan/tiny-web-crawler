@@ -1,24 +1,18 @@
 package com.hieuphan.tinywebscrawler.scraper
 
-import java.net.{SocketTimeoutException, URL}
+import java.net.URL
 
+import com.hieuphan.tinywebscrawler.webclient.{RetryableJsoupWebClient, WebClientException}
 import com.typesafe.scalalogging.LazyLogging
-import org.jsoup.{HttpStatusException, Jsoup}
+import org.jsoup.Jsoup
 
 import scala.collection.JavaConverters._
-import scala.math.pow
 
-class RetryableInternalLinksScraper(maxAttempts: Int = 3, ) extends Scraper with LazyLogging {
-  require(maxAttempts > 1)
+class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) extends Scraper with LazyLogging {
 
-  def scrape(url: URL) = scrape(url, attemptsSoFar = 0)
-
-  def scrape(url: URL, attemptsSoFar: Int = 0): SimpleWebResource = {
+  def scrape(url: URL): SimpleWebResource = {
     try {
-      val response = Jsoup.connect(url.toString).ignoreContentType(true)
-        .userAgent("Totally not a bot")
-        .execute()
-
+      val response = webClient.get(url)
       val contentType: String = response.contentType
       if (contentType.startsWith("text/html")) {
         val doc = response.parse()
@@ -38,33 +32,12 @@ class RetryableInternalLinksScraper(maxAttempts: Int = 3, ) extends Scraper with
       }
     }
     catch {
-      case e: HttpStatusException =>
-        if (isExceptionRetryable(e) && attemptsSoFar < maxAttempts) {
-          Thread.sleep(1000 * pow(2, attemptsSoFar).toLong) // exponential back off
-          this.scrape(url, attemptsSoFar + 1)
-        }
-        else {
-          logger.warn(s"Couldn't scrape ${url}. Will return empty content.")
-          SimpleWebResource(url, Set())
-        }
-      case _: SocketTimeoutException =>
-        if (attemptsSoFar < maxAttempts) {
-          Thread.sleep(1000 * pow(2, attemptsSoFar).toLong) // exponential back off
-          this.scrape(url, attemptsSoFar + 1)
-        }
-        else {
-          logger.warn(s"Couldn't scrape ${url}. Will return empty content.")
-          SimpleWebResource(url, Set())
-        }
-      case _: Throwable =>
-        logger.warn(s"Couldn't scrape ${url}. Will return empty content.")
+      case e: WebClientException => {
+        logger.warn("Exception happened. Will return an empty set of links and continue. Stack trace for debugging purpose.")
+        e.printStackTrace()
         SimpleWebResource(url, Set())
+      }
     }
-  }
-
-  private def isExceptionRetryable(e: HttpStatusException): Boolean = {
-    // maybe more status codes can be considered retryable?
-    return e.getStatusCode == 503
   }
 
 }
