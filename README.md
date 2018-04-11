@@ -8,7 +8,7 @@ is considered "external" to example.com in this implementation.
 * Given a URL, it can print a simple site map, showing the links between pages.
 
 ### Technical overview
-* The code is structured into a few building blocks
+* The code is structured into a few building blocks:
   * package webclient contains classes which help retrieve web content (such as html pages)
   over HTTP. The code supports retrying & exponential backout for robustness.
   * package scraper contains classes which help scrape links from html content
