@@ -9,10 +9,10 @@ are considered two different domains in this implementation.
 
 ### Technical overview
 * The code is structured into a few building blocks:
-  * package webclient contains classes which help retrieve web content (such as html pages)
+  * package `webclient` contains classes which help retrieve web content (such as html pages)
   over HTTP. The code supports retrying & exponential backout for robustness.
-  * package scraper contains classes which help scrape links from html content
-  * package crawler contain classes which orchestrate the crawling work in parallel
+  * package `scraper` contains classes which help scrape links from html content
+  * package `crawler` contain classes which orchestrate the crawling work in parallel
 * The crawling is done using graph breadth-first search. 
 * Links at the same "depth" in the graph can be crawled in parallel
 to speed up the program. To simplify the concurrency model, we only crawl links at one depth at a time.
