@@ -16,6 +16,7 @@ case class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) ext
       val contentType: String = response.contentType
       if (contentType.startsWith("text/html")) {
         val doc = response.parse()
+
         val links: Set[URL] = Jsoup.parse(doc.html(), url.toString)
           .select("a[href]")
           .iterator().asScala
@@ -25,6 +26,7 @@ case class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) ext
           .map(link => new URL(link))
           .filter(l => l.getHost == url.getHost)
           .toSet
+
         SimpleWebResource(url, links)
       } else {
         // in case the url is not html, for example, an image or a pdf file
@@ -33,8 +35,7 @@ case class RetryableInternalLinksScraper(webClient: RetryableJsoupWebClient) ext
     }
     catch {
       case e: WebClientException => {
-        logger.warn("Exception happened. Will return an empty set of links and continue. Stack trace for debugging purpose.")
-        e.printStackTrace()
+        logger.warn(s"Oops, something bad happened when trying to visit ${url.toString}.")
         SimpleWebResource(url, Set())
       }
     }

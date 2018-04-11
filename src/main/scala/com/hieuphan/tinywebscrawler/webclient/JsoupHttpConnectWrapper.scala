@@ -6,7 +6,7 @@ import java.net.URL
 import org.jsoup.Connection.Response
 import org.jsoup.Jsoup
 
-class JsoupWebClient {
+class JsoupHttpConnectWrapper {
 
   @throws[IOException]
   def getResponse(url: URL): Response  = {

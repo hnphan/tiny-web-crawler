@@ -2,7 +2,7 @@ package tinywebscrawler.webclient
 
 import java.net.URL
 
-import com.hieuphan.tinywebscrawler.webclient.{JsoupWebClient, RetryableJsoupWebClient, WebClientException}
+import com.hieuphan.tinywebscrawler.webclient.{JsoupHttpConnectWrapper, RetryableJsoupWebClient, WebClientException}
 import org.specs2.mutable.Specification
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
@@ -44,7 +44,7 @@ class RetryableJsoupWebClientTest extends Specification with Mockito {
 
   trait MockedEnv extends Scope {
     val testUrl = new URL("https://www.example.com")
-    val mockWebClient = mock[JsoupWebClient]
+    val mockWebClient = mock[JsoupHttpConnectWrapper]
     val okResponse = mock[Response]
     val serviceTemporarilyUnavailableException = new HttpStatusException("Be right back", 503, testUrl.toString)
     val notFoundException = new HttpStatusException("Not found", 404, testUrl.toString)

@@ -7,7 +7,7 @@ import org.jsoup.Connection.Response
 import org.jsoup.HttpStatusException
 import scala.math.pow
 
-class RetryableJsoupWebClient(jSoupWebClient: JsoupWebClient, maxAttempts: Int = 3) extends LazyLogging {
+class RetryableJsoupWebClient(jSoupWebClient: JsoupHttpConnectWrapper, maxAttempts: Int = 3) extends LazyLogging {
 
   require(maxAttempts > 1)
 
@@ -25,8 +25,8 @@ class RetryableJsoupWebClient(jSoupWebClient: JsoupWebClient, maxAttempts: Int =
           Thread.sleep(1000 * pow(2, attemptsSoFar).toLong) // exponential back off
           get(url, attemptsSoFar + 1)
         }
-        else throw WebClientException(e.getMessage, e.getCause)
-      case e: Throwable => throw WebClientException(e.getMessage, e.getCause)
+        else throw WebClientException(e)
+      case e: Throwable => throw WebClientException(e)
     }
   }
 
@@ -38,6 +38,6 @@ class RetryableJsoupWebClient(jSoupWebClient: JsoupWebClient, maxAttempts: Int =
 
 object RetryableJsoupWebClient {
   def apply(maxAttempts: Int = 3) = {
-    new RetryableJsoupWebClient(new JsoupWebClient())
+    new RetryableJsoupWebClient(new JsoupHttpConnectWrapper())
   }
 }
