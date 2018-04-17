@@ -22,6 +22,7 @@ and exponential back-off to avoid overloading the target website.
 
 ### Known limitations
 * There are some subtle cases such as `http://www.w3.org` and `http://www.w3.org/` are considered two different URL's by this crawler
+* Doesn't really treat "dead" links differently
 * This crawler is rather impolite; it does not respect `robots.txt`
 
 ### Getting started
